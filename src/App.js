@@ -3,6 +3,8 @@ import Login from "./pages/login";
 import Home from "./pages/home";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
+document.body.style = "background: #F0F8FF;";
+
 function App() {
   return (
     <BrowserRouter>

@@ -3,3 +3,11 @@ export const isAuthenticated = () => {
 
   return !!account;
 };
+
+export const authenticate = (account) => {
+  sessionStorage.setItem("account_address", account);
+};
+
+export const getAccount = () => {
+  return sessionStorage.getItem("account_address");
+};
