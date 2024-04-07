@@ -1,8 +1,25 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getAccount } from "../../auth/Auth";
-import { contractAbi, contractAddress } from "../../constants";
-import { ethers } from "ethers";
-import { Typography, Card, CardContent, Chip } from "@mui/material";
+import { contractAddress } from "../../constants";
+import { getContractInstance } from "../../utils/web3";
+import { BigNumber } from "@ethersproject/bignumber";
+import {
+  Typography,
+  Card,
+  CardContent,
+  Chip,
+  TransitionProps,
+  Slide,
+  Button,
+  IconButton,
+  Toolbar,
+  AppBar,
+  Dialog,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+import CreateCandidate from "./createCandidate";
+import Transition from "./transition";
 
 const Home = () => {
   const account = getAccount();
@@ -10,50 +27,57 @@ const Home = () => {
   const [votingStatus, setVotingStatus] = useState(null);
   const [owner, setOwner] = useState(null);
   const [candidateList, setCandidateList] = useState([]);
+  const [candidatesNumber, setCandidatesNumber] = useState(0);
+  const [open, setOpen] = React.useState(false);
+  const [closeDisabled, setCloseDisabled] = useState(false);
+
+  const isOwner = owner == account;
 
   useEffect(() => {
     fetchData();
   }, [account]);
 
-  async function getContractInstance() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const contractInstance = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      signer
-    );
+  const handleClickOpen = (title) => {
+    setOpen(true);
+  };
 
-    return contractInstance;
-  }
+  const handleClose = (_, reason) => {
+    if (reason !== "backdropClick") {
+      setOpen(false);
+    }
+  };
 
   async function fetchData() {
     await getContractOwner();
-    await getCandidateList();
     await getStatusVoting();
+    await getCandidateList();
   }
 
   async function getContractOwner() {
     const contractInstance = await getContractInstance();
-    const owner = await contractInstance.owner();
-
+    const owner = await contractInstance.getFunction("owner").call();
     setOwner(owner);
     console.log("OWNER: ", owner);
   }
 
   async function getCandidateList() {
-    const contractInstance = await getContractInstance();
-    const candidateList = await contractInstance.getCandidateList();
+    try {
+      const contractInstance = await getContractInstance();
+      const candidatesNumber = parseInt(
+        await contractInstance.getFunction("candidatesNumber").call()
+      );
 
-    setCandidateList(candidateList);
-    console.log("CANDIDATE LIST: ", candidateList);
+      console.log("CANDIDATES NUMBER: ", candidatesNumber);
+      setCandidatesNumber(candidatesNumber);
+    } catch (err) {
+      console.log("err => ", err);
+    }
   }
 
   async function getStatusVoting() {
     const contractInstance = await getContractInstance();
     const votingStatus = renderStatusVoting(
-      parseInt(await contractInstance.votingStatus())
+      parseInt(await contractInstance.getFunction("votingStatus").call())
     );
 
     setVotingStatus(votingStatus);
@@ -102,7 +126,18 @@ const Home = () => {
             >
               Election from contract: <b>{contractAddress}</b>
             </Typography>
-            <Typography>
+            <Typography
+              sx={{ fontSize: 14, marginTop: "5px" }}
+              color="text.secondary"
+              gutterBottom
+            >
+              Candidates number: <b>{candidatesNumber}</b>
+            </Typography>
+            <Typography
+              sx={{ fontSize: 14 }}
+              color="text.secondary"
+              gutterBottom
+            >
               Election status:{" "}
               <Chip
                 label={votingStatus}
@@ -111,11 +146,51 @@ const Home = () => {
             </Typography>
           </div>
 
-          <Typography>
-            Candidates number: {candidateList && candidateList.length}
-          </Typography>
+          <Typography></Typography>
+          {isOwner ? (
+            <div>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleClickOpen}
+              >
+                Create candidate
+              </Button>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
+
+      <Dialog
+        fullScreen
+        disableEscapeKeyDown
+        open={open}
+        onClose={handleClose}
+        TransitionComponent={Transition}
+      >
+        <AppBar sx={{ position: "relative" }}>
+          <Toolbar>
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={handleClose}
+              aria-label="close"
+              disabled={closeDisabled}
+            >
+              <CloseIcon />
+            </IconButton>
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+              Create candidate
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <CreateCandidate
+          setOpen={setOpen}
+          setCloseDisabled={setCloseDisabled}
+          closeDisabled={closeDisabled}
+          fetchData={fetchData}
+        />
+      </Dialog>
     </div>
   );
 };

@@ -1,15 +1,14 @@
 import React from "react";
-import { ethers } from "ethers";
 import Button from "@mui/material/Button";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
 import "./style.css";
 import { authenticate } from "../../auth/Auth";
+import { BrowserProvider } from "ethers";
 
-const provider = window.ethereum
-  ? new ethers.providers.Web3Provider(window.ethereum)
-  : null;
+const provider = window.ethereum ? new BrowserProvider(window.ethereum) : null;
+
+console.log(provider);
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,17 +17,18 @@ const Login = () => {
     if (window.ethereum) {
       try {
         await provider.send("eth_requestAccounts", []);
-        var signer = provider.getSigner();
+        var signer = await provider.getSigner();
         const address = await signer.getAddress();
+
         authenticate(address);
         navigate("/home");
       } catch (err) {
         if (err && err.code && err.code == 4001) {
-          toast("Please, accept to connect to metamask");
+          toast("Please, accept to connect to metamask", { type: "error" });
         }
       }
     } else {
-      toast("Please, install Metamask!");
+      toast("Please, install Metamask!", { type: "error" });
     }
   };
 
@@ -38,7 +38,6 @@ const Login = () => {
       <Button style={{ background: "white" }} onClick={connectwalletHandler}>
         Connect with Metamask
       </Button>
-      <ToastContainer />
     </div>
   );
 };
