@@ -50,6 +50,7 @@ const Home = () => {
   async function fetchData() {
     await getContractOwner();
     await getStatusVoting();
+    await getCandidateNumber();
     await getCandidateList();
   }
 
@@ -60,7 +61,7 @@ const Home = () => {
     console.log("OWNER: ", owner);
   }
 
-  async function getCandidateList() {
+  async function getCandidateNumber() {
     try {
       const contractInstance = await getContractInstance();
       const candidatesNumber = parseInt(
@@ -69,6 +70,19 @@ const Home = () => {
 
       console.log("CANDIDATES NUMBER: ", candidatesNumber);
       setCandidatesNumber(candidatesNumber);
+    } catch (err) {
+      console.log("err => ", err);
+    }
+  }
+
+  async function getCandidateList() {
+    try {
+      const contractInstance = await getContractInstance();
+      const candidatesList = await contractInstance
+        .getFunction("getCandidateList")
+        .call();
+
+      console.log("CANDIDATES LIST: ", candidatesList);
     } catch (err) {
       console.log("err => ", err);
     }
