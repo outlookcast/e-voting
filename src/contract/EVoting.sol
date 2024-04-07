@@ -1,14 +1,8 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity ^0.8.0;
 
 contract EVoting {
-    address public owner;
-    uint public candidatesNumber;
-    Candidate[] public candidates;
-    mapping(address => Voter) public voters;
-    uint public votingStatus;
-
     struct Candidate {
         string name;
         string profilePhoto;
@@ -19,6 +13,12 @@ contract EVoting {
         bool voted;
         uint vote;
     }
+
+    address public owner;
+    uint public candidatesNumber;
+    Candidate[] public candidates;
+    mapping(address => Voter) public voters;
+    uint public votingStatus;
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Sender not authorized.");
@@ -50,14 +50,14 @@ contract EVoting {
     }
 
     function addCandidate(
-        string memory name,
-        string memory profilePhoto
+        string memory _name,
+        string memory _profilePhoto
     ) public onlyOwner votingNotStarted {
         candidates.push(
-            Candidate({name: name, profilePhoto: profilePhoto, voteCount: 0})
+            Candidate({name: _name, profilePhoto: _profilePhoto, voteCount: 0})
         );
 
-        candidatesNumber = candidatesNumber + 1;
+        candidatesNumber++;
     }
 
     function getCandidateList() public view returns (Candidate[] memory) {

@@ -1,10 +1,10 @@
-const contractAddress = "0xa3c7501BF8f1C3D354A75722ECe57955b4C9c54E";
+const contractAddress = "0x3e86AD2312B0D55ceEFf6bE2D5EB9f40A3496a52";
 const contractAbi = [
   { inputs: [], stateMutability: "nonpayable", type: "constructor" },
   {
     inputs: [
-      { internalType: "string", name: "name", type: "string" },
-      { internalType: "string", name: "profilePhoto", type: "string" },
+      { internalType: "string", name: "_name", type: "string" },
+      { internalType: "string", name: "_profilePhoto", type: "string" },
     ],
     name: "addCandidate",
     outputs: [],
