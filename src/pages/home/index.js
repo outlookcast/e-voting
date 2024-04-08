@@ -179,11 +179,18 @@ const Home = () => {
               >
                 Create candidate
               </Button>
+
+              <Button variant="contained" style={{ marginLeft: "20px" }}>
+                {votingStatus == "NOT_STARTED" ? "Start voting" : "End voting"}
+              </Button>
             </div>
           ) : null}
         </CardContent>
 
-        <CandidatesTable candidateList={candidateList} />
+        <CandidatesTable
+          candidateList={candidateList}
+          votingStatus={votingStatus}
+        />
       </Card>
 
       <Dialog
