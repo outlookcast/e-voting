@@ -107,6 +107,12 @@ contract EVoting {
         }
     }
 
+    function canVote() public view returns (bool) {
+        if (votingStatus != 1) return false;
+
+        return !voters[msg.sender].voted;
+    }
+
     function vote(uint _vote) public notVotedYet votingStarted {
         require(_vote >= 0 && _vote < candidatesNumber, "Candidato invalido");
 
