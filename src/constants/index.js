@@ -1,6 +1,52 @@
-const contractAddress = "0x3e86AD2312B0D55ceEFf6bE2D5EB9f40A3496a52";
+const contractAddress = "0x43E51B1a9158C3A98FDC6e224571FdbA72D739D1";
 const contractAbi = [
   { inputs: [], stateMutability: "nonpayable", type: "constructor" },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: false, internalType: "string", name: "name", type: "string" },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "profilePhoto",
+        type: "string",
+      },
+    ],
+    name: "CandidateAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "voter",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "candidateIdentifier",
+        type: "uint256",
+      },
+    ],
+    name: "VoteAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "string",
+        name: "status",
+        type: "string",
+      },
+    ],
+    name: "VotingStatusChanged",
+    type: "event",
+  },
   {
     inputs: [
       { internalType: "string", name: "_name", type: "string" },
@@ -9,6 +55,13 @@ const contractAbi = [
     name: "addCandidate",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "canVote",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -27,6 +80,13 @@ const contractAbi = [
     name: "candidatesNumber",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "endVoting",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -71,6 +131,13 @@ const contractAbi = [
     name: "owner",
     outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "reset",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

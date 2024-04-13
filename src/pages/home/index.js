@@ -18,6 +18,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CreateCandidate from "./createCandidate";
 import Transition from "./transition";
 import CandidatesTable from "./candidatesTable";
+import { toast } from "react-toastify";
 
 const Home = () => {
   const account = getAccount();
@@ -28,6 +29,7 @@ const Home = () => {
   const [candidatesNumber, setCandidatesNumber] = useState(0);
   const [open, setOpen] = React.useState(false);
   const [closeDisabled, setCloseDisabled] = useState(false);
+  const [canVote, setCanVote] = useState(false);
 
   const isOwner = owner == account;
 
@@ -50,6 +52,7 @@ const Home = () => {
     await getStatusVoting();
     await getCandidateNumber();
     await getCandidateList();
+    await getCanVote();
   }
 
   async function getContractOwner() {
@@ -105,6 +108,71 @@ const Home = () => {
 
     setVotingStatus(votingStatus);
     console.log("VOTING STATUS: ", votingStatus);
+  }
+
+  async function getCanVote() {
+    const contractInstance = await getContractInstance();
+    const canVote = await contractInstance.getFunction("canVote").call();
+
+    console.log("canVote => ", canVote);
+
+    setCanVote(canVote);
+  }
+
+  async function startVoting() {
+    try {
+      const contractInstance = await getContractInstance();
+      const tx = await contractInstance.getFunction("startVoting").call();
+      await tx.wait();
+      await fetchData();
+    } catch (err) {
+      console.log("err => ", err);
+      if (err && err.code && err.code == "ACTION_REJECTED") {
+        toast("Please, accept to start voting", { type: "error" });
+      } else {
+        toast("An error occurred during start voting", {
+          type: "error",
+        });
+      }
+    }
+  }
+
+  async function endVoting() {
+    try {
+      const contractInstance = await getContractInstance();
+      const tx = await contractInstance.getFunction("endVoting").call();
+      await tx.wait();
+      await fetchData();
+    } catch (err) {
+      console.log("err => ", err);
+      if (err && err.code && err.code == "ACTION_REJECTED") {
+        toast("Please, accept to end voting", { type: "error" });
+      } else {
+        toast("An error occurred during end voting", {
+          type: "error",
+        });
+      }
+    }
+  }
+
+  async function vote(candidate) {
+    try {
+      const contractInstance = await getContractInstance();
+      const tx = await contractInstance
+        .getFunction("vote")
+        .call("vote", candidate);
+      await tx.wait();
+      await fetchData();
+    } catch (err) {
+      console.log("err => ", err);
+      if (err && err.code && err.code == "ACTION_REJECTED") {
+        toast("Please, accept to vote", { type: "error" });
+      } else {
+        toast("An error occurred during vote", {
+          type: "error",
+        });
+      }
+    }
   }
 
   function renderStatusVoting(status) {
@@ -176,11 +244,23 @@ const Home = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleClickOpen}
+                disabled={votingStatus != "NOT_STARTED"}
               >
                 Create candidate
               </Button>
 
-              <Button variant="contained" style={{ marginLeft: "20px" }}>
+              <Button
+                variant="contained"
+                style={{ marginLeft: "20px" }}
+                onClick={async () => {
+                  if (votingStatus == "NOT_STARTED") {
+                    await startVoting();
+                  } else {
+                    await endVoting();
+                  }
+                }}
+                disabled={votingStatus == "FINISHED"}
+              >
                 {votingStatus == "NOT_STARTED" ? "Start voting" : "End voting"}
               </Button>
             </div>
@@ -190,6 +270,8 @@ const Home = () => {
         <CandidatesTable
           candidateList={candidateList}
           votingStatus={votingStatus}
+          canVote={canVote}
+          vote={vote}
         />
       </Card>
 

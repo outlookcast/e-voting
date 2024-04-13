@@ -9,7 +9,7 @@ import {
   TableBody,
 } from "@mui/material";
 
-const CandidatesTable = ({ candidateList, votingStatus }) => {
+const CandidatesTable = ({ candidateList, votingStatus, canVote, vote }) => {
   return (
     <div>
       {candidateList.length == 0 ? (
@@ -49,7 +49,8 @@ const CandidatesTable = ({ candidateList, votingStatus }) => {
                       <Button
                         variant="contained"
                         color="success"
-                        disabled={votingStatus != "STARTED"}
+                        disabled={!canVote}
+                        onClick={async () => await vote(row.id)}
                       >
                         Vote
                       </Button>
