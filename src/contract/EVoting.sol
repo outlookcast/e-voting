@@ -122,9 +122,4 @@ contract EVoting {
 
         emit VoteAdded(msg.sender, _vote);
     }
-
-    function reset() public onlyOwner {
-        votingStatus = 0;
-        emit VotingStatusChanged("NOT_STARTED");
-    }
 }
